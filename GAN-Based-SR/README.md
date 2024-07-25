@@ -36,7 +36,7 @@ For training:
  - Please prepare the training dataset by following this [instruction](datasets/README.md).
 
 For testing:
- - Please prepare the training dataset by following this [instruction](datasets/README_TEST.MD).
+ - Please prepare the testing dataset by following this [instruction](datasets/README_TEST.MD).
 
 ### 3.Training commands
 We write all of the training/testing commands into the ["demo.sh"](demo.sh) file. 
