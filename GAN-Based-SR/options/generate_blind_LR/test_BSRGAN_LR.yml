@@ -1,0 +1,17 @@
+manual_seed: 10
+
+datasets:
+  Set5:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/GT/GTmod12
+  Set14:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/GT/GTmod12
+  DIV2K100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12
+  Urban100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/GT/GTmod12
+  BSDS100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/GT/GTmod12
+  Manga109:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/GT/GTmod12
+  General100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/General100/GT/GTmod12

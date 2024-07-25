@@ -1,0 +1,92 @@
+name: RRDBGAN_Selfsim_v21_ks25_kc9_t20_h5_stride3_relaGAN_Bicubic_x4
+model_type: SimSelfMaskESRGANModel
+scale: 4
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+pre_pad: 0
+tile_size: 800
+tile_pad: 32
+tile_process: False
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: Set5
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/GTmod24
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/LRbicx4mod24
+    io_backend:
+      type: disk
+  test_2:  # the 2nd test dataset
+    name: Set14
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/GTmod24
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/LRbicx4mod24
+    io_backend:
+      type: disk
+  test_3:
+    name: DIV2K100
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/DIV2K/DIV2K_valid_HR_mod24
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/DIV2K/DIV2K_valid_LR_mod24/X4
+#    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+  test_4:
+    name: Urban100
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/GTmod24
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/LRbicx4mod24
+    io_backend:
+      type: disk
+  test_5:
+    name: BSDS100
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/GTmod24
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/LRbicx4mod24
+    io_backend:
+      type: disk
+  test_6:
+    name: Manga109
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/GTmod24
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/LRbicx4mod24
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: RRDBNet
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 23
+  num_grow_ch: 32
+
+# path
+path:
+  pretrain_network_g: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/RRDBGAN_Selfsim_v21_ks25_kc9_t20_h5_stride3_relaGAN_Bicubic_x4/models/net_g_450000.pth
+  strict_load_g: true
+  param_key_g: params_ema
+
+# validation settings
+val:
+  save_img: true
+  suffix: 'RRDBGANSelfv21ks25kc9t20h5s3reBicubic'  # add suffix to saved images, if None, use exp name
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: false
+    lpips:
+      type: calculate_lpips
+      crop_border: 4
+      better: lower
+    dists:
+      type: calculate_dists
+      crop_border: 4

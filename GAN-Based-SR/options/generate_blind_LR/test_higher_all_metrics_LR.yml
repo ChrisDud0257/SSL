@@ -1,0 +1,156 @@
+manual_seed: 0
+scale: 4
+
+tile_process: False
+tile_size: 200
+tile_pad: 32
+
+RealESRGAN:
+  scale: 4
+  use_second_order_prob: 0.8
+
+  # the first degradation process
+  resize_prob: [0.1, 0.85, 0.05]  # up, down, keep
+  resize_range: [0.9, 1.1]
+  gaussian_noise_prob: 0.5
+  noise_range: [1, 8]
+  poisson_scale_range: [0.05, 0.5]
+  gray_noise_prob: 0.2
+  jpeg_range: [85, 95]
+
+  blur_kernel_size_min: 1
+  blur_kernel_size_max: 3
+  kernel_list: ['iso', 'aniso']
+  kernel_prob: [0.7, 0.3]
+  sinc_prob: 0.01
+  blur_sigma: [0.1, 0.6]
+  betag_range: [0.1, 2.0]
+  betap_range: [0.1, 1.0]
+
+  # the second degradation process
+  second_blur_prob: 0.8
+  resize_prob2: [0.1, 0.85, 0.05]  # up, down, keep
+  resize_range2: [0.9, 1.1]
+  gaussian_noise_prob2: 0.5
+  noise_range2: [0, 4]
+  poisson_scale_range2: [0, 0.3]
+  gray_noise_prob2: 0.2
+  jpeg_range2: [87, 95]
+
+  blur_kernel_size_min2: 1
+  blur_kernel_size_max2: 2
+  kernel_list2: ['iso', 'aniso']
+  kernel_prob2: [0.7, 0.3]
+  sinc_prob2: 0.01
+  blur_sigma2: [0.1, 0.4]
+  betag_range2: [0.1, 2.0]
+  betap_range2: [0.1, 1.0]
+
+  final_sinc_prob: 0.1
+
+BSRGAN:
+  sf: 4
+  add_blur_kernel_range: [0, 3]
+  downsample2_resize_range: [0.85, 1.0]
+  add_gaussian_noise_range: [1, 12]
+  add_jpeg_noise_range: [75, 95]
+
+datasets:
+  Set5:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/GT/GTmod12
+    max_numbers: 5
+  Set14:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/GT/GTmod12
+    max_numbers: 14
+  DIV2K100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12
+    max_numbers: 80
+  Urban100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/GT/GTmod12
+    max_numbers: 80
+  BSDS100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/GT/GTmod12
+    max_numbers: 80
+  Manga109:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/GT/GTmod12
+    max_numbers: 80
+  General100:
+    dataroot: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/General100/GT/GTmod12
+    max_numbers: 80
+
+model_list:
+  model_1:
+    arch: bsrgan_arch
+    type: BSRGANRRDBNet
+    in_nc: 3
+    out_nc: 3
+    nf: 64
+    nb: 23
+    gc: 32
+    sf: 4
+
+  model_2:
+    arch: rrdbnet_arch
+    type: RRDBNet
+    num_in_ch: 3
+    num_out_ch: 3
+    num_feat: 64
+    num_block: 23
+    num_grow_ch: 32
+
+  model_3:
+    arch: elan_arch
+    scale: 4
+    img_range: 255.
+    colors: 3
+    window_sizes: [4,8,16]
+    m_elan: 36
+    c_elan: 180
+    n_share: 0
+    r_expand: 2
+    rgb_mean: [0.4488, 0.4371, 0.4040]
+
+  model_4:
+    arch: swinir_arch
+    upscale: 4
+    in_chans: 3
+    img_size: 64
+    window_size: 8
+    img_range: 1.
+    depths: [6, 6, 6, 6, 6, 6]
+    embed_dim: 180
+    num_heads: [6, 6, 6, 6, 6, 6]
+    mlp_ratio: 2
+    upsampler: 'pixelshuffle'
+    resi_connection: '1conv'
+
+model_path:
+  model_1:
+    path_1: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/pretrained_models/BSRGAN/Blind_GAN_DF2K_OST/300000_G.pth
+    params_1: ~
+    path_2: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/BSRGANSSL_DF2K_OST_1_h0.004_ks25_kc9_500_x4/models/126000_G.pth
+    params_2: ~
+
+  model_2:
+    path_1: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/RealESRGAN_1.2_x4/models/net_g_300000.pth
+    params_1: params_ema
+    path_2: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/RealESRGANSSL_1_h0.004_ks25_kc9_500_x4/models/net_g_134000.pth
+    params_2: params_ema
+
+  model_3:
+    path_1: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/LDL_RealESRGAN_1.2_x4/models/net_g_160000.pth
+    params_1: params_ema
+    path_2: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/LDLSSL_RealESRGAN_1_h0.004_ks25_kc9_500_x4/models/net_g_195000.pth
+    params_2: params_ema
+
+  model_4:
+    path_1: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/ELANGAN_BSRGAN_DF2K_OST_x4/models/65000_G.pth
+    params_1: ~
+    path_2: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/ELANGANSSL_BSRGAN_DF2K_OST_1_h0.004_ks25_kc9_500_x4/models/164000_G.pth
+    params_2: ~
+
+  model_5:
+    path_1: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/SwinIRGAN_BSRGAN_DF2K_OST_x4/models/125000_G.pth
+    params_1: ~
+    path_2: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/SwinIRGANSSL_BSRGAN_DF2K_OST_1_h0.004_ks25_kc9_500_x4/models/138000_G.pth
+    params_2: ~

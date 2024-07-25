@@ -1,0 +1,175 @@
+# general settings
+name: ESRGANSSL_bicubic_1_h1_ks25_kc5_50_x4
+model_type: ESRGANSimSelfMaskModel
+scale: 4
+num_gpu: auto  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+pre_pad: 0
+tile_size: 800
+tile_pad: 32
+tile_process: False
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: DF2K_OST
+    type: PairedImageMaskDataset
+    dataroot_gt: /data1_ssd4t/chendu/datasets/DF2K_OST/multiscale_HR_sub_512
+    dataroot_lq: /data1_ssd4t/chendu/datasets/DF2K_OST/bicubic/x4/multiscale_HR_sub_512
+    dataroot_gt_mask: /data1_ssd4t/chendu/datasets/DF2K_OST/mask_selfsim/multiscale_HR_sub_512/Laplacian/L/threshold-20.0/mat
+    # (for lmdb)
+    # dataroot_gt: datasets/DIV2K/DIV2K_train_HR_sub.lmdb
+    # dataroot_lq: datasets/DIV2K/DIV2K_train_LR_bicubic_X4_sub.lmdb
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+      # (for lmdb)
+      # type: lmdb
+
+    gt_size: 128
+    use_hflip: true
+    use_rot: true
+
+    # data loader
+    num_worker_per_gpu: 8
+    batch_size_per_gpu: 64
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: DIV2K100
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/bicubicLR/x4mod12
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: RRDBNet
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 23
+  num_grow_ch: 32
+
+network_d:
+  type: VGGStyleDiscriminator
+  num_in_ch: 3
+  num_feat: 64
+  input_size: 128
+
+# path
+path:
+  pretrain_network_g: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/pretrained_models/ESRGAN/ESRGAN_PSNR_SRx4_DF2K_official-150ff491.pth
+  param_key_g: params_ema
+  strict_load_g: true
+  resume_state: ~
+
+#  pretrain_network_d: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/ESRGANSSL_bicubic_1_x4/models/net_d_200000.pth
+#  param_key_d: params
+#  strict_load_d: true
+
+
+# training settings
+train:
+  mask_stride: 3
+  ema_decay: 0.999
+  simself_strategy: 'areaarea_mask_nonlocalavg_cuda_v1'
+  kernel_size: 25
+  scaling_factor: 1
+  kernel_size_center: 9
+  softmax_sr: True
+  softmax_gt: True
+  simself_dh: 64
+  simself_dw: 64
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [50000, 100000, 200000, 300000]
+    gamma: 0.5
+
+  total_iter: 400000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: !!float 1e-2
+    reduction: mean
+  selfsim_opt:
+    type: L1Loss
+    loss_weight: !!float 5e1
+    reduction: mean
+  selfsim1_opt:
+    type:  KLDistanceLoss
+    loss_weight: !!float 5e1
+    reduction: mean
+    softmax: False
+  perceptual_opt:
+    type: PerceptualLoss
+    layer_weights:
+      'conv5_4': 1  # before relu
+    vgg_type: vgg19
+    use_input_norm: true
+    range_norm: false
+    perceptual_weight: 1.0
+    style_weight: 0
+    criterion: l1
+  gan_opt:
+    type: GANLoss
+    gan_type: vanilla
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: !!float 5e-3
+
+  net_d_iters: 1
+  net_d_init_iters: 0
+
+# validation settings
+val:
+  val_freq: !!float 1e4
+  save_img: ~
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim: # metric name
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
+    lpips:
+      type: calculate_lpips
+      crop_border: 4
+      better: lower
+    dists:
+      type: calculate_dists
+      crop_border: 4
+      better: lower
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 1e4
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
