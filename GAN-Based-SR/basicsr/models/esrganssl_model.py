@@ -181,8 +181,7 @@ class ESRGANSSLModel(BaseModel):
                                                     kernel_size_search=self.opt['ssl_setting']['kernel_size_search'],
                                                     generalization=self.opt['ssl_setting']['generalization'],
                                                     kernel_size_window=self.opt['ssl_setting']['kernel_size_window'],
-                                                    sigma=self.opt['ssl_setting']['sigma']
-                                                    )
+                                                    sigma=self.opt['ssl_setting']['sigma'])
                     gt_self_matrix = gt_self_matrix.getitem()
 
                     b_sr_list.append(output_self_matrix)

@@ -5,15 +5,15 @@ Please following our dataset preparation steps since we need to generate edge ma
 ### Generate GT patches together with the corresponding edge mask.
 1. You are supposed to download the training dataset:
 
-   -- [DIV2K(1-800 images for training)](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
+ - [DIV2K(1-800 images for training)](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
 
-   -- [Flickr2K](https://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)
+ - [Flickr2K](https://cv.snu.ac.kr/research/EDSR/Flickr2K.tar)
 
-   -- [OST](https://github.com/xinntao/SFTGAN)
+ - [OST](https://github.com/xinntao/SFTGAN)
 
-   -- [FFHQ](https://github.com/NVlabs/ffhq-dataset)
+ - [FFHQ](https://github.com/NVlabs/ffhq-dataset)
 
-   -- [DIV8K](https://competitions.codalab.org/competitions/22217#participate-get-data)
+ - [DIV8K](https://competitions.codalab.org/competitions/22217#participate-get-data)
    
    FFHQ and DIV8K are utilized to train DM-based models. 
 2. We following the data augmentation strategy in [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN/blob/master/scripts/generate_multiscale_DF2K.py)

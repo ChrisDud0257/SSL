@@ -43,7 +43,7 @@ each pixel in the search area and the central pixel so that an SSG can be respec
 computed for the GT image and the ISR image, with which the SSL can be computed. 
 The red pixel means the edge pixel, while the blue block means the sliding window.
 
-## Core function of SSL
+## Core function of Self-similarity Graph (SSG)
 
  - PyTorch Version, you could find it [here](GAN-Based-SR/basicsr/losses/loss_util.py).
 ```bash
@@ -118,6 +118,7 @@ def ssl_cuda(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma
 If you use PyTorch version, the GPU memory cost will surpass 48G.**
 
 ## SSL for GAN-based SR.
+We integrate all GAN-based SR methods into the BasicSR framework.
  - Please following the training and testing steps [here](GAN-Based-SR/README.md).
 
 
