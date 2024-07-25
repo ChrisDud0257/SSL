@@ -36,7 +36,7 @@ def main(args):
 
             musiq_score = musiq(img).item()
             print(f'{i + 1:3d}: {basename:25}. \tMUSIQ: {musiq_score}')
-            save_txt.write(f"{basename}. \tNIQE: {musiq_score:.6f}\n")
+            save_txt.write(f"{basename}. \tMUSIQ: {musiq_score:.6f}\n")
 
             musiq_score_all.append(musiq_score)
 
