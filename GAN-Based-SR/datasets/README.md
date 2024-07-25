@@ -32,7 +32,8 @@ python extract_subimages.py --input [path to your multi-scale images] --save [pa
 
 4. We extract the edge mask with a Laplacian operator from the 512*512 patches. We save edge mask into "A.mat". "A" means the image patch's name.
 In trainging progress, we read in "A.mat" and calculate SSG. 
-And we also save the visualization of edge mask into "A.png" format. You could observe the detailed edge mask through "A.png".
+And we also save the visualization of edge mask into "A.png" format. You could observe the detailed edge mask through "A.png". During
+training progress, the edge mask "A.mat" will be read in to help with the calculation of self-similarity graph.
 ```bash
 cd GAN-Based-SR/scripts/data_preparation
 python generate_mask.py --input [path to your patch images] --save [path to your save path]

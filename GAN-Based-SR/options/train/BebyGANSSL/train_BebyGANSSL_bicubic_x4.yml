@@ -1,22 +1,22 @@
-name: SPSRSSL_bicubic_x4
-model_type: SPSRSSLModel
+name: BebyGANSSL_bicubic_x4
+model_type: BebyGANSSLModel
 scale: 4
 num_gpu: auto  # set num_gpu: 0 for cpu mode
 manual_seed: 0
 
 pre_pad: 0
-tile_size: 200
+tile_size: 800
 tile_pad: 32
 tile_process: False
 
 # dataset and data loader settings
 datasets:
   train:
-    name: DIV2K
+    name: DF2K
     type: PairedImageMaskDataset
-    dataroot_gt: /data1_ssd4t/chendu/datasets/DIV2K/DIV2K_train_multiscale_HR_subimages_512
-    dataroot_lq: /data1_ssd4t/chendu/datasets/DIV2K/bicubicLR/x4/DIV2K_train_multiscale_HR_subimages_512
-    dataroot_gt_mask: /data1_ssd4t/chendu/datasets/DIV2K/mask_selfsim/DIV2K_train_multiscale_HR_subimages_512/Laplacian/L/threshold-20.0/mat
+    dataroot_gt: /data1_ssd4t/chendu/datasets/DF2K/multiscale_HR_sub_512
+    dataroot_lq: /data1_ssd4t/chendu/datasets/DF2K/bicubicLR/x4/multiscale_HR_sub_512
+    dataroot_gt_mask: /data1_ssd4t/chendu/datasets/DF2K/mask_selfsim/multiscale_HR_sub_512/Laplacian/L/threshold-20.0/mat
     # (for lmdb)
     # dataroot_gt: datasets/DIV2K/DIV2K_train_HR_sub.lmdb
     # dataroot_lq: datasets/DIV2K/DIV2K_train_LR_bicubic_X4_sub.lmdb
@@ -26,13 +26,13 @@ datasets:
       # (for lmdb)
       # type: lmdb
 
-    gt_size: 128
+    gt_size: 192
     use_hflip: true
     use_rot: true
 
     # data loader
-    num_worker_per_gpu: 15
-    batch_size_per_gpu: 30
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 16
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -46,33 +46,22 @@ datasets:
 
 # network structures
 network_g:
-  type: SPSRNet
-  norm_type: null
-  mode: "CNA"
-  nf: 64
-  nb: 23
+  type: RRDBBebyGANNet
   in_nc: 3
   out_nc: 3
+  nf: 64
+  nb: 23
   gc: 32
 
 network_d:
-  type: VGGStyleDiscriminator
-  num_in_ch: 3
-  num_feat: 64
-  input_size: 128
-
-network_d_grad:
-  type: VGGStyleDiscriminator
-  num_in_ch: 3
-  num_feat: 64
-  input_size: 128
+  type: Discriminator_VGG_192
+  in_chl: 3
+  nf: 64
 
 # path
-load_mode_g: my_pretrain
+load_mode_g: original
 path:
-  pretrain_network_g: experiments/pretrained_models/SPSR-PSNR/net_g.pth
-  strict_load_g: true
-  param_key_g: params_ema
+  pretrain_network_g: experiments/pretrained_models/BebyGAN/RRDB_warmup.pth
 
 ssl_setting:
   mask_stride: 3
@@ -84,8 +73,6 @@ ssl_setting:
 
 # training settings
 train:
-  Branch_pretrain: False
-  Branch_init_iters: 5000
   ema_decay: 0.999
   optim_g:
     type: Adam
@@ -97,32 +84,23 @@ train:
     lr: !!float 1e-4
     weight_decay: 0
     betas: [0.9, 0.99]
-  optim_d_grad:
-    type: Adam
-    lr: !!float 1e-4
-    weight_decay: 0
-    betas: [0.9, 0.99]
 
   scheduler:
     type: MultiStepLR
-    milestones: [50000, 100000, 200000, 300000]
+    milestones: [200000, 400000]
     gamma: 0.5
 
-  total_iter: 400000
+  total_iter: 600000
   warmup_iter: -1  # no warm up
 
   # losses
-  pixel_opt:
+  pixel_bb_opt:
     type: L1Loss
-    loss_weight: !!float 1e-2
+    loss_weight: !!float 1e0
     reduction: mean
-  pixel_gradSR_opt:
-    type: MSELoss
-    loss_weight: !!float 1e-2
-    reduction: mean
-  pixel_gradBranch_opt:
+  pixel_bp_opt:
     type: L1Loss
-    loss_weight: !!float 5e-1
+    loss_weight: !!float 1e0
     reduction: mean
   selfsim_opt:
     type: L1Loss
@@ -136,7 +114,9 @@ train:
   perceptual_opt:
     type: PerceptualLoss
     layer_weights:
-      'conv5_4': 1  # before relu
+      'conv3_4': 0.125
+      'conv4_4': 0.25
+      'conv5_4': 0.5
     vgg_type: vgg19
     use_input_norm: true
     range_norm: false
@@ -144,12 +124,6 @@ train:
     style_weight: 0
     criterion: l1
   gan_opt:
-    type: GANLoss
-    gan_type: vanilla
-    real_label_val: 1.0
-    fake_label_val: 0.0
-    loss_weight: !!float 5e-3
-  gan_gradSR_opt:
     type: GANLoss
     gan_type: vanilla
     real_label_val: 1.0

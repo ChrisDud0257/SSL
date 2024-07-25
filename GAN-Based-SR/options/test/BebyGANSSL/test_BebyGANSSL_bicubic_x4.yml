@@ -1,7 +1,7 @@
-name: BebyGAN_bicubic_x4
-model_type: BebyGANSimSelfMaskModel
+name: BebyGANSSL_bicubic_x4
+model_type: BebyGANSSLModel
 scale: 4
-num_gpu: 1  # set num_gpu: 0 for cpu mode
+num_gpu: auto  # set num_gpu: 0 for cpu mode
 manual_seed: 0
 
 pre_pad: 0
@@ -71,14 +71,16 @@ network_g:
   gc: 32
 
 # path
-load_mode_g: original
+load_mode_g: my_pretrain
 path:
-  pretrain_network_g: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/pretrained_models/BebyGAN/BebyGAN_x4.pth
+  pretrain_network_g: experiments/pretrained_models/BebyGANSSL/net_g.pth
+  strict_load_g: true
+  param_key_g: params_ema
 
 # validation settings
 val:
   save_img: true
-  suffix: 'BebyGANx4'  # add suffix to saved images, if None, use exp name
+  suffix: 'BebyGANSSLx4'  # add suffix to saved images, if None, use exp name
 
   metrics:
     psnr: # metric name, can be arbitrary
