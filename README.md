@@ -25,7 +25,7 @@ demonstrate that, by coupling with SSL, the performance of many state-of-the-art
 including those GAN and DM based ones, can be largely improved, reproducing more perceptually 
 realistic image details and eliminating many false reconstructions and visual artifacts. 
 
-## The implementation of Self-similarity Loss (SSL) when embedd into existing GAN-based or DM-based models:
+## The illustration of Self-similarity Loss (SSL) when embedd into existing GAN-based or DM-based models:
 ![implementation](./figures/DMSSL.png)
  The GAN or DM network is employed to map the input LR image to an ISR output. We calculate 
 the self-similarity graphs (SSG) of both ISR output and ground-truth (GT) image, 
@@ -43,44 +43,82 @@ each pixel in the search area and the central pixel so that an SSG can be respec
 computed for the GT image and the ISR image, with which the SSL can be computed. 
 The red pixel means the edge pixel, while the blue block means the sliding window.
 
+## Core function of SSL
 
-
-## Getting started for GAN-based Models
-
-### 1.Installation
- - Python == 3.9
- - CUDA == 11.7 
- - PyTorch == 1.13.1
- - Anaconda
-
-Since we implement SSL with a hand-crafted CUDA operator, 
-please make sure you have already installed a correct CUDA version. 
-We have tested that at least with CUDA-11.3, or a higher version is just OK.
-
- - clone this repo.
+ - PyTorch Version, you could find it [here](GAN-Based-SR/basicsr/losses/loss_util.py).
 ```bash
-git clone https://github.com/ChrisDud0257/SSL
-cd GAN-Based-SR
-conda create --name ssl-gan python=3.9
-pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
-pip install -r requirements.txt
+  def ssl_pytorch(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma=1.0, generalization=False):
+      # img, 1*3*h*w
+      # mask, 1*1*h*w
+      b, c, h, w = img.shape
+      # print(f"mask shape is {mask.shape}")
+      _, c1, _, _ = mask.shape
+
+      img_search_area = F.pad(input=img, pad=(
+      kernel_size_search // 2, kernel_size_search // 2, kernel_size_search // 2, kernel_size_search // 2),
+                              mode="reflect")
+      img_search_area = F.unfold(input=img_search_area, padding=0, kernel_size=kernel_size_search,
+                                 stride=1)  # 1,3*k_search*k_search, h*w
+
+      mask = F.unfold(input=mask, padding=0, kernel_size=1, stride=1)  # 1,1*1*1, h*w
+      index = torch.where(mask == 1)
+
+      img_search_area = img_search_area[:, :, index[-1]]  # 1, 3*k_search*k_search, num         num is the total amount of the pixels which is 1 in the mask
+      del mask
+      del index
+      _, _, num = img_search_area.shape
+      img_search_area = img_search_area.reshape(b, c, kernel_size_search * kernel_size_search, num)
+      img_search_area = img_search_area.permute(0, 1, 3, 2)  # 1, 3, num, k_search*k_search
+      img_search_area = img_search_area.reshape(b, c * num, kernel_size_search,
+                                                kernel_size_search)  # 1,3*num, k_search, k_search
+
+      img_search_area = F.unfold(input=img_search_area, kernel_size=kernel_size_window,
+                                 padding=kernel_size_window // 2, stride=1)  # 1, 3*num*k_c*k_c, k_s*k_s
+      img_search_area = img_search_area.reshape(b, c, num, kernel_size_window * kernel_size_window,
+                                                kernel_size_search * kernel_size_search)
+      img_search_area = img_search_area.permute(0, 2, 1, 3, 4)  # 1, num, 3, k_c*k_c, k_s*k_s
+      img_search_area = img_search_area.reshape(b, num, c * kernel_size_window * kernel_size_window,
+                                                kernel_size_search * kernel_size_search)  # 1, num, c*k_c*k_c, k_s*k_s
+
+      img_center_neighbor = img_search_area[:, :, :, (kernel_size_search * kernel_size_search) // 2].unsqueeze(
+          -1)  # 1, num, c*k_c*k_c, 1
+
+      q = img_search_area - img_center_neighbor  # 1, num, c*k_c*k_c, k_s*k_s
+      # print(f"q shape is {q.shape}")
+      del img_search_area
+      del img_center_neighbor
+      q = q.pow(2).sum(2)  # 1, num, k_s*k_s
+      q = q / (c * math.pow(kernel_size_window, 2))
+      q = torch.exp(-1 * q / sigma)
+      if generalization:
+          q = 1 / (torch.sum(q, dim=-1) + 1e-10).unsqueeze(-1) * q
+      self.s = q    # self.s denotes the final SSG
+      del q
 ```
- - Then you should make sure you have installed the CUDA correctly. Export your CUDA path into
-the environment. For example, in my path
+
+ - CUDA version, you could find it [here](GAN-Based-SR/basicsr/losses/loss_util.py).
 ```bash
-export CUDA_HOME=/data0/chendu/cuda-11.7
+def ssl_cuda(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma=1.0, generalization=False):
+    b,c,h,w = img.shape
+    q = compute_similarity(image=img[0], mask=mask[0,0], psize=kernel_size_search, ksize=kernel_size_window)
+    q = q / (c * math.pow(kernel_size_window, 2))
+    q = q.unsqueeze(0)
+    b, num, _, _ = q.shape
+    q = q.reshape(b, num, kernel_size_search * kernel_size_search)
+
+    q = torch.exp(-1 * q / sigma)
+
+    if generalization:
+        q = 1 / (torch.sum(q, dim=-1) + 1e-10).unsqueeze(-1) * q
+    self.s = q  # self.s denotes the final SSG
+    del q
 ```
- - At last, compile the bascisr framework.
-```bash
-BASICSR_EXT=True python setup.py develop
-```
 
-All of the models are trained under the excellent BasicSR framework. For any installation issues,
-please refer to [BasicSR](https://github.com/XPixelGroup/BasicSR/blob/master/docs/INSTALL.md).
+**We strongly recommend you to use the CUDA version to largely save GPU memory during training.
+If you use PyTorch version, the GPU memory cost will surpass 48G.**
 
-### 2.Data preparation (for training):
-
- - Please prepare the training dataset by following this [instruction](GAN-Based-SR/datasets/README.md).
+## SSL for GAN-based SR.
+ - Please following the training and testing steps [here](GAN-Based-SR/README.md).
 
 
 
