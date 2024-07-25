@@ -106,6 +106,9 @@ And together with the well-trained ESRGAN-SSL model path:
 4.2 The models provided by us. You could download all of our well-trained models through [GoogleDrive]
 or [BaiduDrive].
 
+For fair comparison, we download all of the original GAN-based SR models and re-test them, which means
+we test our SSL-guided version and the original model with the same datasets, 
+the same border cropping size, the same border shaving size, the IQA metric codes and so on.
 
 4.3 Start testing
  - For example, when testing ESRGAN-SSL, you could use this command:
