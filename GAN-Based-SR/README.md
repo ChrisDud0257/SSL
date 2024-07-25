@@ -62,6 +62,10 @@ you are supposed to modify:
 
 (line 64) pretrain_network_g: [path to the pretrained ESRGAN-PSNR model]
 ```
+Note that, for each SSL-guided version, we finetune the SSL-guided counterparts from a well-trained 
+PSNR-oriented version. You are supposed to download the pretrained models provided by the original method.
+And then modify the "pretrain_network_g" path in line 64.
+
 If your GPU memory is limited, please decrease the training batch size,
 ```bash
 (line 35) batch_size_per_gpu: [please set to an appropriate value that will not raise CUDA memory error]
