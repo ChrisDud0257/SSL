@@ -23,7 +23,7 @@ the environment. For example, in my path
 ```bash
 export CUDA_HOME=/data0/chendu/cuda-11.7
 ```
- - At last, compile the bascisr framework.
+ - At last, compile the BasicSR framework.
 ```bash
 BASICSR_EXT=True python setup.py develop
 ```
