@@ -92,6 +92,14 @@ you are suuposed to modify the testing datasets' paths from line 13 to line 62.
 And together with the well-trained ESRGAN-SSL model path:
 
 ```bash
+(line 13)test_1:  # the 1st test dataset
+           name: Set5
+           type: PairedImageDataset
+           dataroot_gt: [path to Set5 GT]
+           dataroot_lq: [path to Set5 x4 downsampled LR]
+           io_backend:
+             type: disk
+......
 (line 75) pretrain_network_g: [path to the well-trained ESRGAN-SSL model]
 ```
 
