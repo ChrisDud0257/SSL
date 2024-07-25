@@ -6,9 +6,9 @@
  - PyTorch == 1.13.1
  - Anaconda
 
-Since we implement SSL with a hand-crafted CUDA operator, 
+**Since we implement SSL with a hand-crafted CUDA operator, 
 please make sure you have already installed a correct CUDA version. 
-We have tested that the CUDA version from 11.3 to 11.7 is just OK.
+We have tested that the CUDA version from 11.3 to 11.7 is just OK.**
 
  - clone this repo.
 ```bash
