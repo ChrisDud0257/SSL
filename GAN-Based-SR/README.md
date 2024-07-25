@@ -95,7 +95,7 @@ And together with the well-trained ESRGAN-SSL model path:
 or [BaiduDrive].
 
 
-4.3 Start tesing
+4.3 Start testing
  - For example, when testing ESRGAN-SSL, you could use this command:
 ```bash
 CUDA_VISIBLE_DEVICES=0 \
