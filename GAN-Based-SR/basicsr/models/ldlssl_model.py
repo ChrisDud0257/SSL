@@ -17,11 +17,11 @@ from basicsr.losses.loss_util import similarity_map, get_refined_artifact_map
 
 
 @MODEL_REGISTRY.register()
-class LDLSimSelfMaskModel(BaseModel):
+class LDLSSLModel(BaseModel):
     """Base SR model for single image super-resolution."""
 
     def __init__(self, opt):
-        super(LDLSimSelfMaskModel, self).__init__(opt)
+        super(LDLSSLModel, self).__init__(opt)
 
         self.pre_pad = self.opt['pre_pad']
         self.tile_size = self.opt['tile_size']
@@ -54,14 +54,14 @@ class LDLSimSelfMaskModel(BaseModel):
             self.use_network_d = True
 
         if self.is_train:
-            if self.opt['train'].get('mask_stride', 0) > 1:
+            if self.opt['ssl_setting'].get('mask_stride', 0) > 1:
                 mask_size = int(self.opt['datasets']['train']['gt_size'])
-                mask_stride = torch.eye(self.opt['train'].get('mask_stride', 0), self.opt['train'].get('mask_stride', 0), dtype=torch.float32)
-                mask_stride = mask_stride.repeat(math.ceil(mask_size / self.opt['train'].get('mask_stride', 0)), math.ceil(mask_size / self.opt['train'].get('mask_stride', 0)))
+                mask_stride = torch.eye(self.opt['ssl_setting'].get('mask_stride', 0), self.opt['ssl_setting'].get('mask_stride', 0), dtype=torch.float32)
+                mask_stride = mask_stride.repeat(math.ceil(mask_size / self.opt['ssl_setting'].get('mask_stride', 0)), math.ceil(mask_size / self.opt['ssl_setting'].get('mask_stride', 0)))
                 mask_stride = mask_stride[:mask_size, :mask_size]
                 mask_stride = mask_stride.unsqueeze(0).unsqueeze(0)
                 self.mask_stride = nn.Parameter(data=mask_stride, requires_grad=False).cuda()
-                print(f"mask stride is {self.opt['train'].get('mask_stride', 0)}")
+                print(f"mask stride is {self.opt['ssl_setting'].get('mask_stride', 0)}")
 
         if self.is_train:
             self.init_training_settings()
@@ -97,11 +97,6 @@ class LDLSimSelfMaskModel(BaseModel):
         else:
             self.cri_pix = None
 
-        if train_opt.get('pixel1_opt'):
-            self.cri_pix1 = build_loss(train_opt['pixel1_opt']).to(self.device)
-        else:
-            self.cri_pix1 = None
-
         if train_opt.get('perceptual_opt'):
             self.cri_perceptual = build_loss(train_opt['perceptual_opt']).to(self.device)
         else:
@@ -122,20 +117,10 @@ class LDLSimSelfMaskModel(BaseModel):
         else:
             self.cri_selfsim1 = None
 
-        if train_opt.get('maxdis_opt'):
-            self.cri_maxdis = build_loss(train_opt['maxdis_opt']).to(self.device)
-        else:
-            self.cri_maxdis = None
-
         if train_opt.get('artifacts_opt'):
             self.cri_artifacts = build_loss(train_opt['artifacts_opt']).to(self.device)
         else:
             self.cri_artifacts = None
-
-        if train_opt.get('selfsim_multiscale_opt'):
-            self.cri_selfsim_multiscale = build_loss(train_opt['selfsim_multiscale_opt']).to(self.device)
-        else:
-            self.cri_selfsim_multiscale = None
 
         if self.cri_pix is None and self.cri_perceptual is None:
             raise ValueError('Both pixel and perceptual losses are None.')
@@ -178,10 +163,6 @@ class LDLSimSelfMaskModel(BaseModel):
             l_pix = self.cri_pix(self.output, self.gt)
             self.l_g_total += l_pix
             self.loss_dict['l_pix'] = l_pix
-        if self.cri_pix1:
-            l_pix1 = self.cri_pix1(self.output, self.gt)
-            self.l_g_total += l_pix1
-            self.loss_dict['l_pix1'] = l_pix1
         # self similarity loss
         if self.cri_selfsim or self.cri_selfsim1:
             b, _, _, _ = self.gt.shape
@@ -197,57 +178,40 @@ class LDLSimSelfMaskModel(BaseModel):
                     b_gt = self.gt[i, :].unsqueeze(0)  # 1,3,256, 256
                     b_sr = self.output[i, :].unsqueeze(0)  # 1,3,256,256
                     output_self_matrix = similarity_map(img=b_sr.clone(), mask=b_mask_gt.clone(),
-                                                        simself_strategy=self.opt['train']['simself_strategy'],
-                                                        dh=self.opt['train'].get('simself_dh', 16),
-                                                        dw=self.opt['train'].get('simself_dw', 16),
-                                                        kernel_size=self.opt['train']['kernel_size'],
-                                                        scaling_factor=self.opt['train']['scaling_factor'],
-                                                        softmax=self.opt['train'].get('softmax_sr', False),
-                                                        temperature=self.opt['train'].get('temperature', 0),
-                                                        crossentropy=self.opt['train'].get('crossentropy', False),
-                                                        rearrange_back=self.opt['train'].get('rearrange_back', True),
-                                                        stride=1, pix_num=1, index=None,
-                                                        kernel_size_center=self.opt['train'].get('kernel_size_center',9),
-                                                        mean=self.opt['train'].get('mean', False),
-                                                        var=self.opt['train'].get('var', False),
-                                                        gene_type=self.opt['train'].get('gene_type', "sum"),
-                                                        largest_k=self.opt['train'].get('largest_k', 0))
+                                                        ssl_mode=self.opt['ssl_setting']['ssl_mode'],
+                                                        kernel_size_search=self.opt['ssl_setting']['kernel_size_search'],
+                                                        generalization = self.opt['ssl_setting']['generalization'],
+                                                        kernel_size_window = self.opt['ssl_setting']['kernel_size_window'],
+                                                        sigma = self.opt['ssl_setting']['sigma'])
                     output_self_matrix = output_self_matrix.getitem()
 
                     gt_self_matrix = similarity_map(img=b_gt.clone(), mask=b_mask_gt.clone(),
-                                                    simself_strategy=self.opt['train']['simself_strategy'],
-                                                    dh=self.opt['train'].get('simself_dh', 16),
-                                                    dw=self.opt['train'].get('simself_dw', 16),
-                                                    kernel_size=self.opt['train']['kernel_size'],
-                                                    scaling_factor=self.opt['train']['scaling_factor'],
-                                                    softmax=self.opt['train'].get('softmax_gt', False),
-                                                    temperature=self.opt['train'].get('temperature', 0),
-                                                    crossentropy=self.opt['train'].get('crossentropy', False),
-                                                    rearrange_back=self.opt['train'].get('rearrange_back', True),
-                                                    stride=1, pix_num=1, index=None,
-                                                    kernel_size_center=self.opt['train'].get('kernel_size_center', 9),
-                                                    mean=self.opt['train'].get('mean', False),
-                                                    var=self.opt['train'].get('var', False),
-                                                    gene_type=self.opt['train'].get('gene_type', "sum"),
-                                                    largest_k=self.opt['train'].get('largest_k', 0))
+                                                    ssl_mode=self.opt['ssl_setting']['ssl_mode'],
+                                                    kernel_size_search=self.opt['ssl_setting']['kernel_size_search'],
+                                                    generalization=self.opt['ssl_setting']['generalization'],
+                                                    kernel_size_window=self.opt['ssl_setting']['kernel_size_window'],
+                                                    sigma=self.opt['ssl_setting']['sigma'])
                     gt_self_matrix = gt_self_matrix.getitem()
 
                     b_sr_list.append(output_self_matrix)
                     b_gt_list.append(gt_self_matrix)
                     del output_self_matrix
                     del gt_self_matrix
-            b_sr_list = torch.cat(b_sr_list, dim = 1)
-            b_gt_list = torch.cat(b_gt_list, dim = 1)
+            if len(b_sr_list) > 0 and len(b_gt_list) > 0:
+                b_sr_list = torch.cat(b_sr_list, dim = 1)
+                b_gt_list = torch.cat(b_gt_list, dim = 1)
 
         if self.cri_selfsim:
-            l_selfsim = self.cri_selfsim(b_sr_list, b_gt_list)
-            self.l_g_total += l_selfsim
-            self.loss_dict['l_selfsim'] = l_selfsim
+            if len(b_sr_list) > 0 and len(b_gt_list) > 0:
+                l_selfsim = self.cri_selfsim(b_sr_list, b_gt_list)
+                self.l_g_total += l_selfsim
+                self.loss_dict['l_selfsim'] = l_selfsim
 
         if self.cri_selfsim1:
-            l_selfsim_kl = self.cri_selfsim1(b_sr_list, b_gt_list)
-            self.l_g_total += l_selfsim_kl
-            self.loss_dict['l_selfsim_kl'] = l_selfsim_kl
+            if len(b_sr_list) > 0 and len(b_gt_list) > 0:
+                l_selfsim_kl = self.cri_selfsim1(b_sr_list, b_gt_list)
+                self.l_g_total += l_selfsim_kl
+                self.loss_dict['l_selfsim_kl'] = l_selfsim_kl
 
         if self.cri_selfsim or self.cri_selfsim1:
             del b_sr_list
@@ -258,12 +222,6 @@ class LDLSimSelfMaskModel(BaseModel):
             l_g_artifacts = self.cri_artifacts(torch.mul(pixel_weight, self.output), torch.mul(pixel_weight, self.gt))
             self.l_g_total += l_g_artifacts
             self.loss_dict['l_g_artifacts'] = l_g_artifacts
-
-        if self.cri_maxdis:
-            l_maxdis = self.cri_maxdis(self.output, self.gt)
-            self.l_g_total += l_maxdis
-            self.loss_dict['l_maxdis'] = l_maxdis
-
 
         if self.cri_perceptual is None and self.cri_gan is None:
             self.l_g_total.backward()
@@ -571,7 +529,7 @@ class LDLSimSelfMaskModel(BaseModel):
         for metric, value in self.metric_results.items():
             log_str += f'\t # {metric}: {value:.4f}'
             if hasattr(self, 'best_metric_results'):
-                log_str += (f'\tBest: {self.best_metric_results[dataset_name][metric]["val"]:.4f} @ '
+                log_str += (f' \tBest: {self.best_metric_results[dataset_name][metric]["val"]:.4f} @ '
                             f'{self.best_metric_results[dataset_name][metric]["iter"]} iter')
             log_str += '\n'
 

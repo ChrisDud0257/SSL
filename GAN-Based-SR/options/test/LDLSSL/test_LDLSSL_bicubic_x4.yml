@@ -1,7 +1,7 @@
-name: BSRGAN_RealESRGAN+BSRGAN_LR_x4_higher_300000_E
-model_type: BSGRANSimselfTestModel
+name: LDLSSL_bicubic_x4
+model_type: LDLSSLModel
 scale: 4
-num_gpu: 1  # set num_gpu: 0 for cpu mode
+num_gpu: auto  # set num_gpu: 0 for cpu mode
 manual_seed: 0
 
 pre_pad: 0
@@ -14,21 +14,21 @@ datasets:
     name: Set5
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/Set5
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/bicubicLR/x4mod12
     io_backend:
       type: disk
   test_2:  # the 2nd test dataset
     name: Set14
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/Set14
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/bicubicLR/x4mod12
     io_backend:
       type: disk
   test_3:
     name: DIV2K100
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/DIV2K100
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/bicubicLR/x4mod12
 #    filename_tmpl: '{}'
     io_backend:
       type: disk
@@ -36,50 +36,50 @@ datasets:
     name: Urban100
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/Urban100
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/bicubicLR/x4mod12
     io_backend:
       type: disk
   test_5:
     name: BSDS100
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/BSDS100
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/bicubicLR/x4mod12
     io_backend:
       type: disk
   test_6:
     name: Manga109
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/Manga109
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/bicubicLR/x4mod12
     io_backend:
       type: disk
   test_7:
     name: General100
     type: PairedImageDataset
     dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/General100/GT/GTmod12
-    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/General100
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/General100/bicubicLR/x4mod12
     io_backend:
       type: disk
 
 # network structures
 network_g:
-  type: BSRGANRRDBNet
-  in_nc: 3
-  out_nc: 3
-  nf: 64
-  nb: 23
-  gc: 32
-  sf: 4
+  type: RRDBNet
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 23
+  num_grow_ch: 32
 
 # path
 path:
-  pretrain_network_g: /data1_ssd4t/chendu/myprojects/EFDM_SIM/experiments/pretrained_models/BSRGAN/Blind_GAN_DF2K_OST/300000_E.pth
-
+  pretrain_network_g: experiments/pretrained_models/LDLSSL/net_g.pth
+  strict_load_g: true
+  param_key_g: params_ema
 
 # validation settings
 val:
   save_img: true
-  suffix: 'BSRGANx4'  # add suffix to saved images, if None, use exp name
+  suffix: 'LDLSSLx4'  # add suffix to saved images, if None, use exp name
 
   metrics:
     psnr: # metric name, can be arbitrary

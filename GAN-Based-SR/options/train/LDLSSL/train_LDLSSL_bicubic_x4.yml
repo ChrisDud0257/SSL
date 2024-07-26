@@ -1,0 +1,175 @@
+name: LDLSSL_bicubic_x4
+model_type: LDLSSLModel
+scale: 4
+num_gpu: auto   # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+pre_pad: 0
+tile_size: 800
+tile_pad: 32
+tile_process: False
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: DF2K
+    type: PairedImageMaskDataset
+    dataroot_gt: /data1_ssd4t/chendu/datasets/DF2K/multiscale_HR_sub_512
+    dataroot_lq: /data1_ssd4t/chendu/datasets/DF2K/bicubicLR/x4/multiscale_HR_sub_512
+    dataroot_gt_mask: /data1_ssd4t/chendu/datasets/DF2K/mask_selfsim/multiscale_HR_sub_512/Laplacian/L/threshold-20.0/mat
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+      # (for lmdb)
+      # type: lmdb
+
+    gt_size: 128
+    use_hflip: true
+    use_rot: true
+
+    # data loader
+    num_worker_per_gpu: 16
+    batch_size_per_gpu: 64
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+
+  val:
+    name: DIV2K100
+    type: PairedImageDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/bicubicLR/x4mod12
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: RRDBNet
+  num_in_ch: 3
+  num_out_ch: 3
+  num_feat: 64
+  num_block: 23
+  num_grow_ch: 32
+
+network_d:
+  type: VGGStyleDiscriminator
+  num_in_ch: 3
+  num_feat: 64
+  input_size: 128
+
+# path
+path:
+  pretrain_network_g: experiments/pretrained_models/ESRGAN/ESRGAN_PSNR_SRx4_DF2K_official-150ff491.pth
+  param_key_g: params_ema
+  strict_load_g: true
+  resume_state: ~
+
+ssl_setting:
+  mask_stride: 3
+  ssl_mode: 'cuda'  # You could change it to "pytorch" to see the detailed implementation of our SSL. But we don't recommend you to do that since the pytorch version will need at leat 48GB GPU memory
+  kernel_size_search: 25
+  sigma: 0.004  # scaling_factor in the paper
+  kernel_size_window: 9
+  generalization: True
+
+# training settings
+train:
+  ema_decay: 0.999
+  optim_g:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  optim_d:
+    type: Adam
+    lr: !!float 1e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [200000]
+    gamma: 1
+
+  total_iter: 300000
+  warmup_iter: -1  # no warm up
+
+  # losses
+  pixel_opt:
+    type: L1Loss
+    loss_weight: !!float 1e-2
+    reduction: mean
+  artifacts_opt:
+    type: L1Loss
+    loss_weight: !!float 1e0
+    reduction: mean
+  selfsim_opt:
+    type: L1Loss
+    loss_weight: !!float 1e3
+    reduction: mean
+  selfsim1_opt:
+    type:  KLDistanceLoss
+    loss_weight: !!float 1e3
+    reduction: mean
+  perceptual_opt:
+    type: PerceptualLoss
+    layer_weights:
+      # before relu
+      'conv1_2': 0.1
+      'conv2_2': 0.1
+      'conv3_4': 1
+      'conv4_4': 1
+      'conv5_4': 1
+    vgg_type: vgg19
+    use_input_norm: true
+    range_norm: false
+    perceptual_weight: !!float 1e0
+    style_weight: 0
+    criterion: l1
+  gan_opt:
+    type: GANLoss
+    gan_type: vanilla
+    real_label_val: 1.0
+    fake_label_val: 0.0
+    loss_weight: !!float 5e-3
+
+  net_d_iters: 1
+  net_d_init_iters: 0
+
+
+# validation settings
+val:
+  val_freq: !!float 2e3
+  save_img: ~
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim: # metric name
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
+    lpips:
+      type: calculate_lpips
+      crop_border: 4
+      better: lower
+    dists:
+      type: calculate_dists
+      crop_border: 4
+      better: lower
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 2e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

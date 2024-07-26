@@ -47,56 +47,57 @@ The red pixel means the edge pixel, while the blue block means the sliding windo
 
  - PyTorch Version, you could find it [here](GAN-Based-SR/basicsr/losses/loss_util.py).
 ```bash
-  def ssl_pytorch(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma=1.0, generalization=False):
-      # img, 1*3*h*w
-      # mask, 1*1*h*w
-      b, c, h, w = img.shape
-      # print(f"mask shape is {mask.shape}")
-      _, c1, _, _ = mask.shape
+ def ssl_pytorch(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma=1.0, generalization=False):
+     # img, 1*3*h*w
+     # mask, 1*1*h*w
+     b, c, h, w = img.shape
+     # print(f"mask shape is {mask.shape}")
+     _, c1, _, _ = mask.shape
 
-      img_search_area = F.pad(input=img, pad=(
-      kernel_size_search // 2, kernel_size_search // 2, kernel_size_search // 2, kernel_size_search // 2),
-                              mode="reflect")
-      img_search_area = F.unfold(input=img_search_area, padding=0, kernel_size=kernel_size_search,
-                                 stride=1)  # 1,3*k_search*k_search, h*w
+     img_search_area = F.pad(input=img, pad=(
+     kernel_size_search // 2, kernel_size_search // 2, kernel_size_search // 2, kernel_size_search // 2),
+                             mode="reflect")
+     img_search_area = F.unfold(input=img_search_area, padding=0, kernel_size=kernel_size_search,
+                                stride=1)  # 1,3*k_search*k_search, h*w
 
-      mask = F.unfold(input=mask, padding=0, kernel_size=1, stride=1)  # 1,1*1*1, h*w
-      index = torch.where(mask == 1)
+     mask = F.unfold(input=mask, padding=0, kernel_size=1, stride=1)  # 1,1*1*1, h*w
+     index = torch.where(mask == 1)
 
-      img_search_area = img_search_area[:, :, index[-1]]  # 1, 3*k_search*k_search, num         num is the total amount of the pixels which is 1 in the mask
-      del mask
-      del index
-      _, _, num = img_search_area.shape
-      img_search_area = img_search_area.reshape(b, c, kernel_size_search * kernel_size_search, num)
-      img_search_area = img_search_area.permute(0, 1, 3, 2)  # 1, 3, num, k_search*k_search
-      img_search_area = img_search_area.reshape(b, c * num, kernel_size_search,
-                                                kernel_size_search)  # 1,3*num, k_search, k_search
+     img_search_area = img_search_area[:, :, index[-1]]  # 1, 3*k_search*k_search, num         num is the total amount of the pixels which is 1 in the mask
+     del mask
+     del index
+     _, _, num = img_search_area.shape
+     img_search_area = img_search_area.reshape(b, c, kernel_size_search * kernel_size_search, num)
+     img_search_area = img_search_area.permute(0, 1, 3, 2)  # 1, 3, num, k_search*k_search
+     img_search_area = img_search_area.reshape(b, c * num, kernel_size_search,
+                                               kernel_size_search)  # 1,3*num, k_search, k_search
 
-      img_search_area = F.unfold(input=img_search_area, kernel_size=kernel_size_window,
-                                 padding=kernel_size_window // 2, stride=1)  # 1, 3*num*k_c*k_c, k_s*k_s
-      img_search_area = img_search_area.reshape(b, c, num, kernel_size_window * kernel_size_window,
-                                                kernel_size_search * kernel_size_search)
-      img_search_area = img_search_area.permute(0, 2, 1, 3, 4)  # 1, num, 3, k_c*k_c, k_s*k_s
-      img_search_area = img_search_area.reshape(b, num, c * kernel_size_window * kernel_size_window,
-                                                kernel_size_search * kernel_size_search)  # 1, num, c*k_c*k_c, k_s*k_s
+     img_search_area = F.unfold(input=img_search_area, kernel_size=kernel_size_window,
+                                padding=kernel_size_window // 2, stride=1)  # 1, 3*num*k_c*k_c, k_s*k_s
+     img_search_area = img_search_area.reshape(b, c, num, kernel_size_window * kernel_size_window,
+                                               kernel_size_search * kernel_size_search)
+     img_search_area = img_search_area.permute(0, 2, 1, 3, 4)  # 1, num, 3, k_c*k_c, k_s*k_s
+     img_search_area = img_search_area.reshape(b, num, c * kernel_size_window * kernel_size_window,
+                                               kernel_size_search * kernel_size_search)  # 1, num, c*k_c*k_c, k_s*k_s
 
-      img_center_neighbor = img_search_area[:, :, :, (kernel_size_search * kernel_size_search) // 2].unsqueeze(
-          -1)  # 1, num, c*k_c*k_c, 1
+     img_center_neighbor = img_search_area[:, :, :, (kernel_size_search * kernel_size_search) // 2].unsqueeze(
+         -1)  # 1, num, c*k_c*k_c, 1
 
-      q = img_search_area - img_center_neighbor  # 1, num, c*k_c*k_c, k_s*k_s
-      # print(f"q shape is {q.shape}")
-      del img_search_area
-      del img_center_neighbor
-      q = q.pow(2).sum(2)  # 1, num, k_s*k_s
-      q = q / (c * math.pow(kernel_size_window, 2))
-      q = torch.exp(-1 * q / sigma)
-      if generalization:
-          q = 1 / (torch.sum(q, dim=-1) + 1e-10).unsqueeze(-1) * q
-      self.s = q    # self.s denotes the final SSG
-      del q
+     q = img_search_area - img_center_neighbor  # 1, num, c*k_c*k_c, k_s*k_s
+     # print(f"q shape is {q.shape}")
+     del img_search_area
+     del img_center_neighbor
+     q = q.pow(2).sum(2)  # 1, num, k_s*k_s
+     q = q / (c * math.pow(kernel_size_window, 2))
+     q = torch.exp(-1 * q / sigma)
+     if generalization:
+         q = 1 / (torch.sum(q, dim=-1) + 1e-10).unsqueeze(-1) * q
+     self.s = q    # self.s denotes the final SSG
+     del q
 ```
 
- - CUDA version, you could find it [here](GAN-Based-SR/basicsr/losses/loss_util.py).
+ - CUDA version, you could find it [here](GAN-Based-SR/basicsr/losses/loss_util.py). The CUDA operator could be
+found [here](GAN-Based-SR/basicsr/losses/similarity).
 ```bash
 def ssl_cuda(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma=1.0, generalization=False):
     b,c,h,w = img.shape
@@ -120,6 +121,22 @@ If you use PyTorch version, the GPU memory cost will surpass 48G.**
 ## SSL for GAN-based SR.
 We integrate all GAN-based SR methods into the BasicSR framework.
  - Please following the training and testing steps [here](GAN-Based-SR/README.md).
+
+## SSL for DM-based SR.
+
+
+## Other issues
+If you want to try SSL in your own projects, maybe you need to adjust the following hyper-parameters, the hyper-parameters
+in our paper may not be the best choice in all situations:
+ - kernel size search
+ - kernel size window
+ - sigma (scaling factor)
+ - weights of your own losses and the SSL (maybe this is the most important factor)
+
+Note that, according to our experience, after adjusting the weight of SSL, if the magnitude of it is approximately comparable to the existing largest loss term,
+then you might obtain a good performance. And, the weight should be set in an appropriate range, seting too small will have no promotion when compared with the original model, while too large might have
+side effect to the optimization process.
+ 
 
 
 
