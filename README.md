@@ -126,7 +126,10 @@ We integrate all GAN-based SR methods into the BasicSR framework.
 
 
 ## Other issues
-If you want to try SSL in your own projects, maybe you need to adjust the following hyper-parameters, the hyper-parameters
+We also collect some questions that are frequently asked by researchers. Please see bellow.
+
+### 1.How to adjust the performance of SSL in any Generative SR models
+If you want to try SSL in your own projects, maybe you need to adjust the following hyper-parameters, the hyper-parameters settings
 in our paper may not be the best choice in all situations:
  - kernel size search
  - kernel size window
@@ -136,9 +139,13 @@ in our paper may not be the best choice in all situations:
 Note that, according to our experience, after adjusting the weight of SSL, if the magnitude of it is approximately comparable to the existing largest loss term,
 then you might obtain a good performance. And, the weight should be set in an appropriate range, seting too small will have no promotion when compared with the original model, while too large might have
 side effect to the optimization process.
- 
 
-
+### 2.Could SSL be embedd into non-generative SR tasks or other low-level visison tasks?
+Good question. We haven't tried this in non-generative SR tasks. Since they rarely hallucinate artifacts or wrong textures, maybe SSL will have little promotion to those methods.
+For other low-level vision tasks, maybe the computational of SSG should be considered twice. For example,
+ - Is edge mask important in that task? If not, then what kind of mask should be chosen? Semantic mask or other mask?
+ - The hyper-parameter settings.
+ - The GPU memory and training time cost.
 
 
 
