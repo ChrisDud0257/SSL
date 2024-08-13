@@ -130,7 +130,7 @@ We integrate all GAN-based SR methods into the BasicSR framework.
 
 
 ## Other issues
-We also collect some questions that are frequently asked by researchers. Please see bellow.
+We also collect some questions that might be asked. Please see bellow.
 
 ### 1.How to adjust the performance of SSL in any Generative SR models
 If you want to try SSL in your own projects, maybe you need to adjust the following hyper-parameters, the hyper-parameters settings
