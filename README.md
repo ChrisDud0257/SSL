@@ -151,7 +151,26 @@ For other low-level vision tasks, maybe the computational of SSG should be consi
  - The hyper-parameter settings.
  - The GPU memory and training time cost.
 
+## License
+This project is released under the Apache 2.0 license.
 
+## Citation
+If you find this research helpful for you, please follow us by
+```bash
+@inproceedings{chen2024ssl,
+  title={SSL: A Self-similarity Loss for Improving Generative Image Super-resolution},
+  author={Chen, Du and ZHANG, Zhengqiang and Liang, Jie and Zhang, Lei},
+  booktitle={ACM Multimedia 2024}
+}
+```
+
+## Acknowledgement
+
+This project is built mainly based on the excellent [BasicSR](https://github.com/XPixelGroup/BasicSR) and [KAIR](https://github.com/cszn/KAIR) codeframe. We appreciate it a lot for their developers.
+
+## Contact
+
+If you have any questions or suggestions about this project, please contact me at ```csdud.chen@connect.polyu.hk``` .
 
 
 
