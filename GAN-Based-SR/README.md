@@ -41,14 +41,6 @@ For testing:
 ### 3.Training commands
 We write all of the training/testing commands into the ["demo.sh"](demo.sh) file. 
 
-We provide all of the codes that have been reported in our paper:
- - ESRGAN-SSL
- - RankSRGAN-SSL (We train the SSL-guided counterpart with RankSRGAN-PI model)
- - SPSR-SSL
- - LDL-SSL
- - BebyGAN-SSL
- - ELANGAN-SSL
- - SwinIRGAN-SSL
 
 3.1 Firstly, you need to modify the training configuration file, for example, in [train_ESRGANSSL_bicubic_x4.yml](options/train/ESRGANSSL/train_ESRGANSSL_bicubic_x4.yml),
 you are supposed to modify:

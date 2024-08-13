@@ -1,12 +1,16 @@
 # SSL
 Official PyTorch code for our Paper "SSL" in ACM MM 2024.
 
-
+### [Paper and Supplementary (Arxiv Version)](https://arxiv.org/pdf/2408.05713)
 
 > **SSL: A Self-similarity Loss for Improving Generative Image Super-resolution** <br>
 > [Du CHEN\*](https://github.com/ChrisDud0257), [Zhengqiang ZHANG\*](https://github.com/xtudbxk), Jie LIANG and [Lei ZHANG](https://www4.comp.polyu.edu.hk/~cslzhang/). <br>
 > Accepted by ACM MM 2024.<br>
 
+### To be done in the future
+1. Update the codes about Diffusion-based SSL methods.
+2. Update the pretrained models.
+3. Update the codes of metrics.
 
 ## Abstract
 Generative adversarial networks (GAN) and generative diffusion models (DM) have been widely used 
