@@ -1,0 +1,34 @@
+numpy
+albumentations
+opencv-python
+imageio
+imageio-ffmpeg
+pytorch-lightning==1.4.2
+omegaconf
+test-tube>=0.7.5
+streamlit
+einops
+transformers
+webdataset
+kornia
+open_clip_torch
+invisible-watermark>=0.1.5
+streamlit-drawable-canvas
+torchmetrics==0.6.0
+triton
+matplotlib
+wandb
+pillow
+ftfy
+regex
+dists-pytorch
+loguru
+prettytable
+ninja
+nvidia-ml-py3
+fvcore
+pytorch-msssim
+pytorch-fid
+lpips
+-e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
+-e git+https://github.com/openai/CLIP.git@main#egg=clip

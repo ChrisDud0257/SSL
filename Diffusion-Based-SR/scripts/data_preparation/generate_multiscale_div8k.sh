@@ -1,0 +1,1 @@
+python3 generate_multiscale_DF2K.py --input /home/notebook/code/personal/S9049747/zhengqiangzhang/div8k --output /home/notebook/code/personal/S9049747/projects/BasicSR_20230605-25/CDStableSR/dataset/div8k
