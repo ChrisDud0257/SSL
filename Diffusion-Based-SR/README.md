@@ -18,18 +18,14 @@ We have tested that the CUDA version from 11.3 to 11.7 is just OK.**
  - Since this example code is integrated into [StableSR](https://github.com/IceClear/StableSR), please follow their instrucations for installation. For the integration to other diffusion framework, please refer to the [Integration to other diffusion framework](#other_diffusion_framework).
 
 ### 2.Data preparation:
-For training:
- - Please prepare the training dataset by following this [instruction](datasets/README.md).
-
-For testing:
- - Please prepare the testing dataset by following this [instruction](datasets/README_TEST.MD).
+Please refer to [the instructions in GAN-Based-SR](../GAN-Based-SR/README.md) for details.
 
 ### 3.Training commands
 
 You can use the following command to start the training:
 > python3 main.py --train --base configs/SSL/base.yaml --gpus 0,1 --name stablesr_ssl --scale_lr False --logdir experiments
 
-*Remember to modify the base.yml according to your settings, such as the data paths*
+*Remember to modify the base.yml according to your settings, such as the data paths and pretrained model path of [VAE](https://github.com/IceClear/StableSR).*
 
 
 ## 4. Testing commands
@@ -40,7 +36,8 @@ You can use the following command to test the trained model:
 *Please to set the path of test folder and models.*
 
 ## 5. Trained models
-*to be continued*
+You could download all of our well-trained models through [GoogleDrive]
+or [BaiduDrive].
 
 ## 6. Intergration to other diffusion framework 
 <!-- <a id="other_diffusion_framework" /> -->

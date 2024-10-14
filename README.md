@@ -127,7 +127,8 @@ We integrate all GAN-based SR methods into the BasicSR framework.
  - Please following the training and testing steps [here](GAN-Based-SR/README.md).
 
 ## SSL for DM-based SR.
-
+We show the codes that integrate our SSL function to StableSR framework. Besides, we also present the instructions to integrate with other diffusion frameworks.
+ - Please refer to [here](Diffusion-Based-SR/README.md) for more details.
 
 ## Other issues
 We also collect some questions that might be asked. Please see bellow.
