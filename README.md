@@ -133,6 +133,19 @@ We integrate all GAN-based SR methods into the BasicSR framework.
 ## SSL for DM-based SR.
 
 
+## Evaluation Metrics.
+We provide the evalation metrics of PSNR, SSIM, LPIPS, DISTS, FID, NIQE, CLIPIQA and MUSIQ that
+have been used in our paper. Please find them [here](./GAN-Based-SR/scripts/metrics). If you want to
+calculate PSNR and SSIM, please use the following command:
+
+```
+cd GAN-Based-SR/scripts/metrics
+python calculate_psnr_ssim.py --gt [path to your GT] --restored [path to your restored image] --suffix [please input the suffix of your restored image]
+--test_y_channel
+```
+
+All the other metrics could use the similar commands.
+
 ## Other issues
 We also collect some questions that might be asked. Please see bellow.
 
