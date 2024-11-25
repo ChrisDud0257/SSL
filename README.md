@@ -8,13 +8,12 @@ Official PyTorch code for our Paper "SSL" in ACM MM 2024.
 > Accepted by ACM MM 2024.<br>
 
 
-- News (2024-11-25): We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). 
-We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics).
 
+- News (2024-11-25):
+We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). 
+We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics). We upload the training code of SSL in Diffusion-based models. 
+More details could be found [here](./Diffusion-Based-SR/README.md).
 
-
-### To be done in the future
-1. Update the codes about Diffusion-based SSL methods.
 
 ## Abstract
 Generative adversarial networks (GAN) and generative diffusion models (DM) have been widely used 
@@ -131,7 +130,10 @@ We integrate all GAN-based SR methods into the BasicSR framework.
  - Please following the training and testing steps [here](GAN-Based-SR/README.md).
 
 ## SSL for DM-based SR.
+We provide the codes that integrate our SSL function to StableSR framework. 
+Besides, we also present the instructions to integrate with other diffusion frameworks.
 
+- Please following the training and testing steps [here](./Diffusion-Based-SR/README.md).
 
 ## Evaluation Metrics.
 We provide the evalation metrics of PSNR, SSIM, LPIPS, DISTS, FID, NIQE, CLIPIQA and MUSIQ that
