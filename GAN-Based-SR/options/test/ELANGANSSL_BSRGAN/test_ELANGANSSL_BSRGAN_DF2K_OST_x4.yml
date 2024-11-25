@@ -1,0 +1,101 @@
+name: ELANGANSSL_BSRGAN_DF2K_OST_x4
+model_type: BSGRANTestModel
+scale: 4
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+pre_pad: 0
+tile_size: 800
+tile_pad: 32
+tile_process: False
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: Set5
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set5/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/Set5
+    io_backend:
+      type: disk
+  test_2:  # the 2nd test dataset
+    name: Set14
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Set14/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/Set14
+    io_backend:
+      type: disk
+  test_3:
+    name: DIV2K100
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/DIV2K100
+#    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+  test_4:
+    name: Urban100
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Urban100/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/Urban100
+    io_backend:
+      type: disk
+  test_5:
+    name: BSDS100
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/BSDS100/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/BSDS100
+    io_backend:
+      type: disk
+  test_6:
+    name: Manga109
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/Manga109/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/Manga109
+    io_backend:
+      type: disk
+  test_7:
+    name: General100
+    type: MultiLROneGTDataset
+    dataroot_gt: /home/chendu/data2_hdd10t/chendu/dataset/basicsr/General100/GT/GTmod12
+    dataroot_lq: /home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_RealESRGAN+BSRGAN_LR-groups30/General100
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: ELAN
+  scale: 4
+  img_range: 255.
+  colors: 3
+  window_sizes: [4,8,16]
+  m_elan: 36
+  c_elan: 180
+  n_share: 0
+  r_expand: 2
+  rgb_mean: [0.4488, 0.4371, 0.4040]
+
+# path
+path:
+  pretrain_network_g: experiments/pretrained_models/ELANGANSSL_BSRGAN/net_g.pth
+  param_key_g: params
+
+# validation settings
+val:
+  save_img: true
+  suffix: 'ELANGANSSLBSRGANx4'  # add suffix to saved images, if None, use exp name
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: True
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: True
+    lpips:
+      type: calculate_lpips
+      crop_border: 4
+    dists:
+      type: calculate_dists
+      crop_border: 4

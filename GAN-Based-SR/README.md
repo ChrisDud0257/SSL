@@ -95,8 +95,7 @@ And together with the well-trained ESRGAN-SSL model path:
 (line 75) pretrain_network_g: [path to the well-trained ESRGAN-SSL model]
 ```
 
-4.2 The models provided by us. You could download all of our well-trained models through [GoogleDrive]
-or [BaiduDrive].
+4.2 The models provided by us. You could download all of our well-trained models through [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link).
 
 For fair comparison, we download all of the original GAN-based SR models and re-test them, which means
 we test our SSL-guided version and the original model with the same datasets, 

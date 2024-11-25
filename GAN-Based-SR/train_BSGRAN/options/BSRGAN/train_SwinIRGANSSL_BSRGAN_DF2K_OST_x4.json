@@ -1,28 +1,28 @@
 {
-  "task": "SwinIRGAN_BSRGAN_DF2K_OST_x4" // root/task/images|models|options
-  , "model": "gan"        // "SSL"
-  , "gpu_ids": [6, 7]        // [0,1,2,3] for 4 GPUs
+  "task": "SwinIRGANSSL_BSRGAN_DF2K_OST_x4" // root/task/images|models|options
+  , "model": "SSL"        // "SSL"
+  , "gpu_ids": [0,1,2,3]        // [0,1,2,3] for 4 GPUs
   , "tile_size": 200
   , "tile_pad": 32
   , "tile_process": false
   , "save_test_image": false
-
   , "scale": 4       // broadcast to "netG" if SISR
   , "n_channels": 3  // broadcast to "datasets", 1 for grayscale, 3 for color
 
   , "path": {
     "root": "experiments"  // "denoising" | "superresolution"
-    , "pretrained_netG": "experiments/pretrained_models/BSRGAN/SwinIRGAN_BSRGAN/0_G.pth"  // path of pretrained model
+    , "pretrained_netG": "/home/chendu/data2_hdd10t/chendu/FinalUpload/ACMMM2024FinalUpload/SSL/GAN-Based-SR/experiments/pretrained_models/SwinIR_BSRGAN/0_G.pth"  // path of pretrained model
     , "pretrained_netD": null  // path of pretrained model
-	, "pretrained_netE": "experiments/pretrained_models/BSRGAN/SwinIRGAN_BSRGAN/0_E.pth"  // path of pretrained model
+	, "pretrained_netE": null  // path of pretrained model
 	}
 
   , "datasets": {
     "train": {
       "name": "train_dataset"           // fixed
-      , "dataset_type": "blindsr"       // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "SSL"
+      , "dataset_type": "blindsrmask"       // "dncnn" | "dnpatch" | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch" | "SSL"
       , "dataroot_H": "/data1_ssd4t/chendu/datasets/DF2K_OST/multiscale_HR_sub_512"// path of H training dataset
       , "dataroot_L": null              // path of L training dataset
+      , "dataroot_H_mask": "/data1_ssd4t/chendu/datasets/DF2K_OST/mask_selfsim/multiscale_HR_sub_512/Laplacian/L/threshold-20.0/mat"
 
       , "degradation_type": "bsrgan"    // "bsrgan" | "bsrgan_plus"
       , "H_size": 256                   // patch_size 256 | 288 | 320
@@ -40,7 +40,7 @@
       , "n_channels": 3
       , "scale": 4
       , "dataroot_H": "/home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12"   // path of H testing dataset
-      , "dataroot_L": "/home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/DIV2K100"              // path of L testing dataset
+      , "dataroot_L": "/home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/bicubicLR/x4mod12"              // path of L testing dataset
     }
   }
 
@@ -111,9 +111,19 @@
     , "D_param_strict": true
     , "E_param_strict": true
 
-    , "checkpoint_test": 5000  // skip testing
-    , "checkpoint_save": 5000
+    , "checkpoint_test": 2000  // skip testing
+    , "checkpoint_save": 2000
     , "checkpoint_print": 100
     , "iterations": 300000
+    , "mask_stride": 3
+    , "SSL_loss_weight": 500
+    , "SSL_loss_type": "l1"
+    , "ssl_mode": "cuda"
+    , "kernel_size_search": 25
+    , "sigma": 0.004
+    , "generalization": true
+    , "kernel_size_window": 9
+    , "SSL1_loss_weight": 500
+    , "SSL1_loss_type": "kl"
   }
 }

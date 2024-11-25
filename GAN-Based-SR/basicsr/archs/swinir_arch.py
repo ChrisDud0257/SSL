@@ -926,6 +926,7 @@ class SwinIR(nn.Module):
         x = x / self.img_range + self.mean
 
         return x[:, :, 0:h*self.upscale, 0:w*self.upscale]
+        # return x
 
     # def check_image_size(self, x):
     #     _, _, h, w = x.size()

@@ -7,10 +7,14 @@ Official PyTorch code for our Paper "SSL" in ACM MM 2024.
 > [Du CHEN\*](https://github.com/ChrisDud0257), [Zhengqiang ZHANG\*](https://github.com/xtudbxk), Jie LIANG and [Lei ZHANG](https://www4.comp.polyu.edu.hk/~cslzhang/). <br>
 > Accepted by ACM MM 2024.<br>
 
+
+- News (2024-11-25): We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). 
+We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics).
+
+
+
 ### To be done in the future
 1. Update the codes about Diffusion-based SSL methods.
-2. Update the pretrained models.
-3. Update the codes of metrics.
 
 ## Abstract
 Generative adversarial networks (GAN) and generative diffusion models (DM) have been widely used 

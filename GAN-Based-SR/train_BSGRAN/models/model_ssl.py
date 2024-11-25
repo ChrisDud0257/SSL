@@ -288,6 +288,7 @@ class ModelSSL(ModelBase):
                 b, _, _, _ = self.H.shape
                 b_gt_list = []
                 b_sr_list = []
+
                 for i in range(b):
                     b_mask_gt = self.H_mask[i, :].unsqueeze(0)  # 1,1,256, 256
                     if self.opt['train'].get('mask_stride', 0) > 1:
@@ -298,47 +299,32 @@ class ModelSSL(ModelBase):
                         b_gt = self.H[i, :].unsqueeze(0)  # 1,3,256, 256
                         b_sr = self.E[i, :].unsqueeze(0)  # 1,3,256,256
                         output_self_matrix = similarity_map(img=b_sr.clone(), mask=b_mask_gt.clone(),
-                                                            simself_strategy=self.opt_train['simself_strategy'],
-                                                            dh=self.opt_train.get('simself_dh', 16),
-                                                            dw=self.opt_train.get('simself_dw', 16),
-                                                            kernel_size=self.opt_train['kernel_size'],
-                                                            scaling_factor=self.opt_train['scaling_factor'],
-                                                            softmax=self.opt_train.get('softmax_sr', False),
-                                                            temperature=self.opt_train.get('temperature', 0),
-                                                            crossentropy=self.opt_train.get('crossentropy', False),
-                                                            rearrange_back=self.opt_train.get('rearrange_back', True),
-                                                            stride=1, pix_num=1, index=None,
-                                                            kernel_size_center=self.opt_train.get('kernel_size_center', 9),
-                                                            mean=self.opt_train.get('mean', False),
-                                                            var=self.opt_train.get('var', False),
-                                                            gene_type=self.opt_train.get('gene_type', "sum"),
-                                                            largest_k=self.opt_train.get('largest_k', 0))
+                                                            ssl_mode=self.opt_train['ssl_mode'],
+                                                            kernel_size_search=self.opt_train[
+                                                                'kernel_size_search'],
+                                                            generalization=self.opt_train['generalization'],
+                                                            kernel_size_window=self.opt_train[
+                                                                'kernel_size_window'],
+                                                            sigma=self.opt_train['sigma'])
                         output_self_matrix = output_self_matrix.getitem()
 
                         gt_self_matrix = similarity_map(img=b_gt.clone(), mask=b_mask_gt.clone(),
-                                                        simself_strategy=self.opt_train['simself_strategy'],
-                                                        dh=self.opt_train.get('simself_dh', 16),
-                                                        dw=self.opt_train.get('simself_dw', 16),
-                                                        kernel_size=self.opt_train['kernel_size'],
-                                                        scaling_factor=self.opt_train['scaling_factor'],
-                                                        softmax=self.opt_train.get('softmax_gt', False),
-                                                        temperature=self.opt_train.get('temperature', 0),
-                                                        crossentropy=self.opt_train.get('crossentropy', False),
-                                                        rearrange_back=self.opt_train.get('rearrange_back', True),
-                                                        stride=1, pix_num=1, index=None,
-                                                        kernel_size_center=self.opt_train.get('kernel_size_center',9),
-                                                        mean=self.opt_train.get('mean', False),
-                                                        var=self.opt_train.get('var', False),
-                                                        gene_type=self.opt_train.get('gene_type', "sum"),
-                                                        largest_k=self.opt_train.get('largest_k', 0))
+                                                        ssl_mode=self.opt_train['ssl_mode'],
+                                                        kernel_size_search=self.opt_train[
+                                                            'kernel_size_search'],
+                                                        generalization=self.opt_train['generalization'],
+                                                        kernel_size_window=self.opt_train[
+                                                            'kernel_size_window'],
+                                                        sigma=self.opt_train['sigma'])
                         gt_self_matrix = gt_self_matrix.getitem()
 
                         b_sr_list.append(output_self_matrix)
                         b_gt_list.append(gt_self_matrix)
                         del output_self_matrix
                         del gt_self_matrix
-                b_sr_list = torch.cat(b_sr_list, dim=1)
-                b_gt_list = torch.cat(b_gt_list, dim=1)
+                if len(b_sr_list) > 0 and len(b_gt_list) > 0:
+                    b_sr_list = torch.cat(b_sr_list, dim=1)
+                    b_gt_list = torch.cat(b_gt_list, dim=1)
 
             if self.SSL_loss_weight > 0:
                 SSL_loss = self.SSL_loss_weight * self.SSL_loss(b_sr_list, b_gt_list)

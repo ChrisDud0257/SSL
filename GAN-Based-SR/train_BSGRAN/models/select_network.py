@@ -217,18 +217,6 @@ def define_G(opt):
                    n_share=opt_net['n_share'],
                    r_expand=opt_net['r_expand'],
                    rgb_mean=opt_net['rgb_mean'])
-    # ----------------------------------------
-    elif net_type == 'elanln':
-        from basicsr.archs.elanln_arch import ELANLN as net
-        netG = net(scale=opt_net['scale'],
-                   img_range=opt_net['img_range'],
-                   colors=opt_net['colors'],
-                   window_sizes=opt_net['window_sizes'],
-                   m_elan=opt_net['m_elan'],
-                   c_elan=opt_net['c_elan'],
-                   n_share=opt_net['n_share'],
-                   r_expand=opt_net['r_expand'],
-                   rgb_mean=opt_net['rgb_mean'])
     # VRT
     # ----------------------------------------
     elif net_type == 'vrt':

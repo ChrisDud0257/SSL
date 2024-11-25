@@ -1,7 +1,7 @@
 {
-  "task": "SwinIRGANSSL_BSRGAN_DF2K_OST_1_h0.004_ks25_kc9_500_x4" // root/task/images|models|options
+  "task": "BSRGANSSL_DF2K_OST_x4" // root/task/images|models|options
   , "model": "SSL"        // "SSL"
-  , "gpu_ids": [4, 5]        // [0,1,2,3] for 4 GPUs
+  , "gpu_ids": [0, 1, 2, 3]        // [0,1,2,3] for 4 GPUs
   , "tile_size": 200
   , "tile_pad": 32
   , "tile_process": false
@@ -11,9 +11,9 @@
 
   , "path": {
     "root": "experiments"  // "denoising" | "superresolution"
-    , "pretrained_netG": "experiments/pretrained_models/BSRGAN/SwinIRGAN_BSRGAN/0_G.pth"  // path of pretrained model
+    , "pretrained_netG": "/home/chendu/data2_hdd10t/chendu/FinalUpload/ACMMM2024FinalUpload/SSL/GAN-Based-SR/experiments/pretrained_models/BSRGAN_PSNR/0_G.pth"  // path of pretrained model
     , "pretrained_netD": null  // path of pretrained model
-	, "pretrained_netE": "experiments/pretrained_models/BSRGAN/SwinIRGAN_BSRGAN/0_E.pth"  // path of pretrained model
+	, "pretrained_netE": null  // path of pretrained model
 	}
 
   , "datasets": {
@@ -31,32 +31,32 @@
       , "use_sharp": false
 
       , "dataloader_shuffle": true
-      , "dataloader_num_workers": 8     // 8 | 32 | 64
-      , "dataloader_batch_size": 16      // batch size 1 | 16 | 32 | 48 | 64 | 128
+      , "dataloader_num_workers": 6     // 8 | 32 | 64
+      , "dataloader_batch_size": 48      // batch size 1 | 16 | 32 | 48 | 64 | 128
     }
     , "test": {
       "name": "test_dataset"            // fixed
       , "dataset_type": "sr"
-      , "n_channels": 3
-      , "scale": 4
       , "dataroot_H": "/home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/GT/GTmod12"   // path of H testing dataset
-      , "dataroot_L": "/home/chendu/data2_hdd10t/chendu/dataset/BlindLR/ISSL/LR_x4/test_higher_metrics_LR/DIV2K100"              // path of L testing dataset
+      , "dataroot_L": "/home/chendu/data2_hdd10t/chendu/dataset/basicsr/DIV2K100/bicubicLR/x4mod12"              // path of L testing dataset
     }
   }
 
   , "netG": {
-    "net_type": "swinir" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet"
-    , "upscale": 4
-    , "in_chans": 3
-    , "img_size": 64
-    , "window_size": 8
-    , "img_range": 1.0
-    , "depths": [6, 6, 6, 6, 6, 6]
-    , "embed_dim": 180
-    , "num_heads": [6, 6, 6, 6, 6, 6]
-    , "mlp_ratio": 2
-    , "upsampler": "pixelshuffle"
-    , "resi_connection": "1conv"
+    "net_type": "rrdbnet" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet"
+    , "in_nc": 3          // input channel number
+    , "out_nc": 3         // ouput channel number
+    , "nf": 64            // 96 for DPSR, 128 for SRMD, 64 for "dncnn"
+    , "nb": 23            // 12 for "srmd", 15 for "ffdnet", 20 for "dncnn", 16 for "srresnet" and "dpsr"
+    , "gc": 32            //
+    , "ng": 2             // unused
+    , "reduction" : 16    // unused
+    , "act_mode": "L"     // "BR" for BN+ReLU | "R" for ReLU
+    , "bias": true
+
+    , "init_type": "orthogonal"      // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
+    , "init_bn_type": "uniform"      // "uniform" | "constant"
+    , "init_gain": 0.2
   }
 
   , "netD": {
@@ -98,12 +98,12 @@
     , "D_optimizer_wd": 0
 
     , "G_scheduler_type": "MultiStepLR"
-    , "G_scheduler_milestones": [200000, 250000, 375000, 287500]
+    , "G_scheduler_milestones": [40000, 80000]
     , "G_scheduler_gamma": 0.5
     , "G_optimizer_reuse": true
 
     , "D_scheduler_type": "MultiStepLR"
-    , "D_scheduler_milestones": [200000, 250000, 375000, 287500]
+    , "D_scheduler_milestones": [40000, 80000]
     , "D_scheduler_gamma": 0.5
     , "D_optimizer_reuse": false
 
@@ -111,19 +111,18 @@
     , "D_param_strict": true
     , "E_param_strict": true
 
-    , "checkpoint_test": 2000  // skip testing
-    , "checkpoint_save": 2000
+    , "checkpoint_test": 1000  // skip testing
+    , "checkpoint_save": 1000
     , "checkpoint_print": 100
-    , "iterations": 300000
+    , "iterations": 150000
     , "mask_stride": 3
     , "SSL_loss_weight": 500
     , "SSL_loss_type": "l1"
-    , "simself_strategy": "areaarea_mask_nonlocalavg_cuda_v1"
-    , "kernel_size": 25
-    , "scaling_factor": 0.004
-    , "softmax_sr": true
-    , "softmax_gt": true
-    , "kernel_size_center": 9
+    , "ssl_mode": "cuda"
+    , "kernel_size_search": 25
+    , "sigma": 0.004
+    , "generalization": true
+    , "kernel_size_window": 9
     , "SSL1_loss_weight": 500
     , "SSL1_loss_type": "kl"
   }
