@@ -1,7 +1,7 @@
 # SSL
 Official PyTorch code for our Paper "SSL" in ACM MM 2024.
 
-### [Paper and Supplementary (Arxiv Version)](https://arxiv.org/pdf/2408.05713)
+### [Paper and Supplementary (Arxiv Version)](https://arxiv.org/pdf/2408.05713) | [Paper (In ACM Digital Library)](https://dl.acm.org/doi/abs/10.1145/3664647.3680874)
 
 > **SSL: A Self-similarity Loss for Improving Generative Image Super-resolution** <br>
 > [Du CHEN\*](https://github.com/ChrisDud0257), [Zhengqiang ZHANG\*](https://github.com/xtudbxk), Jie LIANG and [Lei ZHANG](https://www4.comp.polyu.edu.hk/~cslzhang/). <br>
