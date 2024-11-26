@@ -9,11 +9,13 @@ Official PyTorch code for our Paper "SSL" in ACM MM 2024.
 
 
 
-- News (2024-11-25):
-We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). 
-We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics). We upload the training code of SSL in Diffusion-based models. 
+News (2024-11-25):
+- We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). 
+- We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics). 
+- We upload the training code of SSL in Diffusion-based models. 
 More details could be found [here](./Diffusion-Based-SR/README.md).
 
+# 1.Introduction about Self-similarity Loss
 
 ## Abstract
 Generative adversarial networks (GAN) and generative diffusion models (DM) have been widely used 
@@ -125,6 +127,8 @@ def ssl_cuda(self, img, mask, kernel_size_search=25, kernel_size_window=9, sigma
 **We strongly recommend you to use the CUDA version to largely save GPU memory during training.
 If you use PyTorch version, the GPU memory cost will surpass 48G.**
 
+# 2.Training and testing guidance
+
 ## SSL for GAN-based SR.
 We integrate all GAN-based SR methods into the BasicSR framework.
  - Please following the training and testing steps [here](GAN-Based-SR/README.md).
@@ -148,10 +152,12 @@ python calculate_psnr_ssim.py --gt [path to your GT] --restored [path to your re
 
 All the other metrics could use the similar commands.
 
-## Other issues
+
+
+# 3.Other issues
 We also collect some questions that might be asked. Please see bellow.
 
-### 1.How to adjust the performance of SSL in any Generative SR models
+## How to adjust the performance of SSL in any Generative SR models
 If you want to try SSL in your own projects, maybe you need to adjust the following hyper-parameters, the hyper-parameters settings
 in our paper may not be the best choice in all situations:
  - kernel size search
@@ -163,31 +169,34 @@ Note that, according to our experience, after adjusting the weight of SSL, if th
 then you might obtain a good performance. And, the weight should be set in an appropriate range, seting too small will have no promotion when compared with the original model, while too large might have
 side effect to the optimization process.
 
-### 2.Could SSL be embedd into non-generative SR tasks or other low-level visison tasks?
+## Could SSL be embedd into non-generative SR tasks or other low-level visison tasks?
 Good question. We haven't tried this in non-generative SR tasks. Since they rarely hallucinate artifacts or wrong textures, maybe SSL will have little promotion to those methods.
 For other low-level vision tasks, maybe the computational of SSG should be considered twice. For example,
  - Is edge mask important in that task? If not, then what kind of mask should be chosen? Semantic mask or other mask?
  - The hyper-parameter settings.
  - The GPU memory and training time cost.
 
-## License
+# License
 This project is released under the Apache 2.0 license.
 
-## Citation
+# Citation
 If you find this research helpful for you, please follow us by
 ```bash
 @inproceedings{chen2024ssl,
   title={SSL: A Self-similarity Loss for Improving Generative Image Super-resolution},
-  author={Chen, Du and ZHANG, Zhengqiang and Liang, Jie and Zhang, Lei},
-  booktitle={ACM Multimedia 2024}
+  author={Chen, Du and Zhang, Zhengqiang and Liang, Jie and Zhang, Lei},
+  booktitle={Proceedings of the 32nd ACM International Conference on Multimedia},
+  pages={3189--3198},
+  year={2024}
 }
 ```
 
-## Acknowledgement
+# Acknowledgement
 
-This project is built mainly based on the excellent [BasicSR](https://github.com/XPixelGroup/BasicSR) and [KAIR](https://github.com/cszn/KAIR) codeframe. We appreciate it a lot for their developers.
+This project is built mainly based on the excellent [BasicSR](https://github.com/XPixelGroup/BasicSR) and [KAIR](https://github.com/cszn/KAIR) codeframe. The metric CLIPIQA is built on the outstanding [CLIP](https://github.com/openai/CLIP)
+and [PyIQA](https://github.com/chaofengc/IQA-PyTorch) framework. We appreciate it a lot for their developers.
 
-## Contact
+# Contact
 
 If you have any questions or suggestions about this project, please contact me at ```csdud.chen@connect.polyu.hk``` .
 

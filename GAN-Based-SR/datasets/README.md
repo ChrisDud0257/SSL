@@ -39,10 +39,10 @@ cd GAN-Based-SR/scripts/data_preparation
 python generate_mask.py --input [path to your patch images] --save [path to your save path]
 ```
 
-### Generate bicubic Low-resolution training patches
+### Generate Low-resolution training patches through bicubic down-sampling
 1. Please use Matlab to generate x4 down-sampling LR images by
 using the 512*512 GT patches in previous Section Step 4. The Matlab code could be seen [here](../scripts/matlab_scripts/generate_bicubic_img.m).
 Or you could just use the [Python code](../basicsr/utils/matlab_functions.py) to generate LR patches. It has the same bicubic function as Matlab.
 
-## Data preparation (for testing GAN-based SR models):
+
 
