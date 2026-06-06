@@ -8,12 +8,9 @@ Official PyTorch code for our Paper "SSL" in ACM MM 2024.
 > Accepted by ACM MM 2024.<br>
 
 
-
-News (2024-11-25):
-- We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). 
-- We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics). 
-- We upload the training code of SSL in Diffusion-based models. 
-More details could be found [here](./Diffusion-Based-SR/README.md).
+## 🎉  News
+- **2026-06-05**: Please note that the previously used Google Drive storage has expired, rendering all old download links for pre-trained weights of the GAN-based-SR method invalid, and we are very sorry for that. At present, only the pre-trained weights for Diffusion-based-SR are still available. If you need to use the pre-trained models, please download them via this link [GoogleDrive](https://drive.google.com/drive/folders/1rS-YNJTQWB9_X-GFRwflOZEMVUL7N4Ke?usp=sharing).
+- **2024-11-25**: We provide the pretrained models. You could find them in [GoogleDrive](https://drive.google.com/drive/folders/17_4Ux74sdYEsHB1Zy9f1iTgJWyPW5Fyz?usp=drive_link). We also update the evaluation metrics. You could find them [here](./GAN-Based-SR/scripts/metrics). We upload the training code of SSL in Diffusion-based models. More details could be found [here](./Diffusion-Based-SR/README.md).
 
 # 1.Introduction about Self-similarity Loss
 
